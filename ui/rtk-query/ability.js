@@ -7,6 +7,7 @@ import CustomErrorMessage from '@/components/ErrorPage';
 import DefaultError from '@/components/General/error-404';
 import { DynamicFullScrrenLoader } from '@/components/LoadingComponents/DynamicFullscreenLoader';
 import { UsesSistent } from '@/components/SistentWrapper';
+import { useLayoutEffect } from 'react';
 export const useGetUserAbilities = (org, skip) => {
   const { data, ...res } = useGetUserKeysQuery(
     {
@@ -32,10 +33,19 @@ export const useGetUserAbilities = (org, skip) => {
 export const useGetCurrentAbilities = (org, setKeys) => {
   const shouldSkip = !org || !org.id;
   const res = useGetUserAbilities(org, shouldSkip);
+
   if (res?.abilities) {
     ability.update(res.abilities);
-    setKeys({ keys: res.keys });
   }
+
+  useLayoutEffect(() => {
+    if (res?.keys) {
+      requestAnimationFrame(() => {
+        setKeys({ keys: res.keys });
+      });
+    }
+  }, [res?.keys, setKeys]);
+
   return res;
 };
 
